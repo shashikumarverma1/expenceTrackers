@@ -1,0 +1,50 @@
+.card {
+    width: 99px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    overflow: hidden;
+    background-color: #f6f6f6;
+  }
+  
+  .card img {
+    border-radius: 5px;
+  }
+  
+  .card-content {
+    background-color: #FFFFFF;
+  }
+  
+  .card-title {
+    font-weight: 500;
+    font-size: 20px;
+    background-color: #FFFFFF;
+  }
+  
+  .card-description {
+    font-weight: 500;
+    font-size: 10px;
+    color: grey;
+    text-align: center;
+  }
+  
+  .card-price {
+    font-weight: 600;
+    font-size: 20px;
+  }
+  
+  .card-add-to-cart {
+    background-color:#000000;
+    color: #FFFFFF;
+  }
+  
+  .card-add-to-cart span {
+    font-size: 10px;
+  }
+  
