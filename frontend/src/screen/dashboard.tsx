@@ -6,30 +6,41 @@ const Dashboard = () => {
   const [form, setForm] = useState({
     amount: '',
     description: '',
-    category: '',
+    category: '688cb08d04e4e73db1f4f331',
   });
-  const [categories, setCategories] = useState([{name: 'Food'}, {name: 'Transport'}, {name: 'Utilities' }]);
+  const [categoryId, setCategoryId] = useState('');
+  const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const [editId, setEditId] = useState(null);
   const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
+  
+    const [token , setToken]=useState('')
+  
+  const fetchToken = () => {
+    const storedToken = localStorage.getItem('token');  
+  setToken(storedToken);
+  }
+  
   const fetchCategories = async () => {
     try {
       const res = await axios.get("http://localhost:5600/api/categories", {
         headers: {
-          Authorization: `${localStorage.getItem("token")}`,
+          Authorization: `${token}`,
         },
       });
-      const data=[...categories , ...res.data.categories];
+      
       console.log(res.data.categories , "data")
-      setCategories(res.data.categories || []);
-      console.log(res , "res122")
+      setCategories(res.data || []);
+    
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
   };
-console.log(categories , "categories")
+
     useEffect(() => {
+      fetchToken()
     fetchCategories();
+    handleGetExpenses()
   }, []);
 
     const handleAddCategory = async () => {
@@ -39,7 +50,7 @@ console.log(categories , "categories")
         { name: newCategory },
         {
           headers: {
-            Authorization: `${localStorage.getItem("token")}`,
+            Authorization: `${token}`,
           },
         }
       );
@@ -61,19 +72,85 @@ console.log(categories , "categories")
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editId !== null) {
-      const updated = expenses.map((exp) =>
-        exp.id === editId ? { ...exp, ...form } : exp
-      );
-      setExpenses(updated);
+     handleCreate()
       setEditId(null);
     } else {
-      setExpenses([
-        ...expenses,
-        { id: Date.now(), ...form },
-      ]);
+    //  handleUpdate()
+      handleCreate()
     }
     setForm({ amount: '', description: '', category: '' });
   };
+
+const handleGetExpenses = async () => {
+  try {
+    const res = await axios.get("http://localhost:5600/api/expenses", {
+      params: {
+        userId: "688c9eb69884e18a1a6440dd",
+        status: "admin",
+      },
+      headers: {
+        Authorization: `${token}`, // Token from localStorage or context
+      },
+    });
+console.log(res.data, "Expenses fetched successfully");
+    setExpenses(res.data);
+  } catch (err) {
+    console.error("Get Expenses Error:", err.response?.data || err.message);
+  }
+};
+
+
+const handleCreate = async () => {
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5600/api/expenses",
+      {
+        user: { id: "688c53cdb78efc1b7d2eaea4" },
+        title: form?.description,
+        amount: parseFloat(form?.amount),
+        category: { id: form?.category },
+        date: new Date().toISOString().split("T")[0], // Current date
+      },
+      {
+        headers: {
+          Authorization: `${token}`, // Make sure token is defined
+        },
+      }
+    );
+     setForm({ amount: '', description: '', category: '' });
+handleGetExpenses()
+    console.log("Created:", res.data);
+  } catch (err) {
+    console.error("Create error:", err.response?.data || err.message);
+  }
+};
+
+
+const handleUpdate = async () => {
+  try {
+    const res = await axios.put(
+      "http://localhost:5600/api/expenses/688c7e1c4ae0a52f937c46ac",
+      {
+        title: "Grocery Shopping",
+        amount: 1400,
+        category: "688c7207ae61c94e71bdc273",
+        date: "2025-07-31",
+      },
+      {
+        headers: {
+          Authorization: `${token}`, // Make sure token is defined
+        },
+      }
+    );
+
+    console.log("Updated:", res.data);
+  } catch (error) {
+    console.error("Update failed:", error.response?.data || error.message);
+  }
+};
+
+
 
   const handleEdit = (exp) => {
     setForm(exp);
@@ -110,7 +187,7 @@ console.log(categories , "categories")
           type="text"
           name="description"
           placeholder="Description"
-          value={form.description}
+          value={form.title}
           onChange={handleInputChange}
           style={{ marginRight: 10, padding: 5 }}
           required
@@ -120,11 +197,11 @@ console.log(categories , "categories")
           value={form.category}
           onChange={handleInputChange}
           style={{ marginRight: 10, padding: 5 }}
-          required
+          // required
         >
           <option value="">Select Category</option>
           {categories.map((cat, idx) => (
-            <option key={idx} value={cat?.name}>{cat?.name}</option>
+            <option key={idx}  value={cat?.name}>{cat?.name}</option>
           ))}
         </select>
         <button type="submit" style={{ padding: '5px 10px' }}>
